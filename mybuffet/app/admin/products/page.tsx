@@ -41,7 +41,7 @@ export default function AdminProductsPage() {
     }
   }
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {  
     e.preventDefault()
     
     try {

@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   const userId = req.headers.get('x-user-id')
   const role = req.headers.get('x-role')
 
-  console.log('GET /api/orders - userId:', userId, 'role:', role) 
+  console.log('GET /api/orders - userId:', userId, 'role:', role)
 
   if (!userId) {
     return Response.json({ error: 'Usuario no autenticado' }, { status: 401 })
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     `
   }
 
-  console.log('Órdenes encontradas:', result.length) 
+  console.log('Órdenes encontradas:', result.length)
 
   return Response.json(result)
 }
@@ -37,7 +37,33 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     
-    console.log('Creando orden:', body) 
+    console.log('Creando orden:', body)
+
+    for (const item of body.items) {
+      const productResult = await sql`
+        SELECT id, name, stock 
+        FROM products 
+        WHERE id = ${item.product_id}
+      `
+      
+      if (productResult.length === 0) {
+        return Response.json(
+          { error: `Producto ${item.product_id} no encontrado` }, 
+          { status: 400 }
+        )
+      }
+      
+      const product = productResult[0]
+      
+      if (product.stock < item.quantity) {
+        return Response.json(
+          { 
+            error: `Stock insuficiente para ${product.name}. Disponible: ${product.stock}, solicitado: ${item.quantity}` 
+          }, 
+          { status: 400 }
+        )
+      }
+    }
     
     const orderResult = await sql`
       INSERT INTO orders (user_id, total, status)
@@ -52,6 +78,12 @@ export async function POST(req: NextRequest) {
         INSERT INTO order_items (order_id, product_id, quantity, price)
         VALUES (${orderId}, ${item.product_id}, ${item.quantity}, ${item.price})
       `
+      
+      await sql`
+        UPDATE products 
+        SET stock = stock - ${item.quantity}
+        WHERE id = ${item.product_id}
+      `
     }
     
     const paymentCode = `nacion.sud`
@@ -60,7 +92,7 @@ export async function POST(req: NextRequest) {
       success: true,
       orderId,
       paymentCode,
-      message: 'Orden creada exitosamente'
+      message: 'Orden creada exitosamente. Stock actualizado.'
     })
     
   } catch (error) {

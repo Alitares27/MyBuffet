@@ -8,6 +8,7 @@ export const metadata = {
   description: 'Tienda de postres artesanales'
 }
 
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
@@ -17,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Navbar />
             <main className="flex-1 p-6">{children}</main>
             <footer className="text-center text-sm py-3 border-t text-gray-500">
-              © {new Date().getFullYear()} Arroyo Seco
+              © {new Date().getFullYear()} Mapuche Buffet
             </footer>
           </CartProvider>
         </AuthProvider>
