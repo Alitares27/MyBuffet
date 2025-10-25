@@ -5,11 +5,8 @@ import type { NextRequest } from 'next/server'
 export async function POST(req: NextRequest) {
   try {
     const { email, newPassword } = await req.json()
-    
-    // Hashear nueva contraseña
     const hashedPassword = await bcrypt.hash(newPassword, 10)
     
-    // Actualizar contraseña
     await sql`
       UPDATE users 
       SET password = ${hashedPassword}

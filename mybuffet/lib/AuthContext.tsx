@@ -21,7 +21,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Cargar usuario desde localStorage
     const savedUser = localStorage.getItem('user')
     if (savedUser) {
       setUser(JSON.parse(savedUser))

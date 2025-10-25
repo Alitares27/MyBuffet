@@ -15,7 +15,6 @@ export default function RegisterPage() {
     e.preventDefault()
     setError('')
 
-    // Validaciones
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden')
       return

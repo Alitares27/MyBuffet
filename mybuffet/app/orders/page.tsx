@@ -52,7 +52,7 @@ export default function OrdersPage() {
 
       if (response.ok) {
         alert('✅ Orden marcada como entregada')
-        loadOrders() // Recargar órdenes
+        loadOrders() 
       } else {
         alert('❌ Error al actualizar la orden')
       }

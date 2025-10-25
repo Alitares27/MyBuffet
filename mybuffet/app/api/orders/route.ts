@@ -1,12 +1,11 @@
 import { sql } from '@/lib/db'
 import type { NextRequest } from 'next/server'
 
-// Obtener todas las órdenes (admin) o solo las del usuario actual
 export async function GET(req: NextRequest) {
   const userId = req.headers.get('x-user-id')
   const role = req.headers.get('x-role')
 
-  console.log('GET /api/orders - userId:', userId, 'role:', role) // Debug
+  console.log('GET /api/orders - userId:', userId, 'role:', role) 
 
   if (!userId) {
     return Response.json({ error: 'Usuario no autenticado' }, { status: 401 })
@@ -14,7 +13,6 @@ export async function GET(req: NextRequest) {
 
   let result
   if (role === 'admin') {
-    // Admins ven todas las órdenes con email del usuario
     result = await sql`
       SELECT o.*, u.email
       FROM orders o 
@@ -22,7 +20,6 @@ export async function GET(req: NextRequest) {
       ORDER BY o.created_at DESC
     `
   } else {
-    // Usuarios normales solo ven sus propias órdenes
     result = await sql`
       SELECT id, user_id, total, status, delivered_at, created_at
       FROM orders
@@ -31,19 +28,17 @@ export async function GET(req: NextRequest) {
     `
   }
 
-  console.log('Órdenes encontradas:', result.length) // Debug
+  console.log('Órdenes encontradas:', result.length) 
 
   return Response.json(result)
 }
 
-// Crear nueva orden
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     
-    console.log('Creando orden:', body) // Debug
+    console.log('Creando orden:', body) 
     
-    // Insertar la orden
     const orderResult = await sql`
       INSERT INTO orders (user_id, total, status)
       VALUES (${body.user_id}, ${body.total}, 'pendiente')
@@ -52,7 +47,6 @@ export async function POST(req: NextRequest) {
     
     const orderId = orderResult[0].id
     
-    // Insertar los items de la orden
     for (const item of body.items) {
       await sql`
         INSERT INTO order_items (order_id, product_id, quantity, price)
@@ -60,7 +54,6 @@ export async function POST(req: NextRequest) {
       `
     }
     
-    // Generar código de pago simple
     const paymentCode = `nacion.sud`
     
     return Response.json({ 

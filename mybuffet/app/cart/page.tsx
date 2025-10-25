@@ -71,7 +71,6 @@ export default function CartPage() {
     }
   }
 
-  // Vista de código de pago
   if (showPayment) {
     return (
       <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded shadow-lg text-center">
@@ -121,7 +120,6 @@ export default function CartPage() {
     )
   }
 
-  // Vista del carrito
   return (
     <div className="max-w-3xl mx-auto mt-8">
       <div className="flex justify-between items-center mb-6">

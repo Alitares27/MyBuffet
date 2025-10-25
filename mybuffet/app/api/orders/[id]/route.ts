@@ -3,13 +3,11 @@ import type { NextRequest } from 'next/server'
 
 type Params = { id: string }
 
-// Actualizar orden (marcar como entregada)
 export async function PUT(req: NextRequest, context: { params: Promise<Params> }) {
   try {
     const { id } = await context.params
     const { status } = await req.json()
     
-    // Actualizar orden con fecha de entrega si el estado es 'entregada'
     if (status === 'entregada') {
       await sql`
         UPDATE orders 
@@ -32,12 +30,10 @@ export async function PUT(req: NextRequest, context: { params: Promise<Params> }
   }
 }
 
-// Obtener detalles de una orden específica
 export async function GET(_req: NextRequest, context: { params: Promise<Params> }) {
   try {
     const { id } = await context.params
     
-    // Obtener la orden con items
     const orderResult = await sql`
       SELECT o.*, u.email
       FROM orders o
@@ -49,7 +45,6 @@ export async function GET(_req: NextRequest, context: { params: Promise<Params> 
       return Response.json({ error: 'Orden no encontrada' }, { status: 404 })
     }
     
-    // Obtener items de la orden con detalles del producto
     const items = await sql`
       SELECT oi.*, p.name as product_name, p.image
       FROM order_items oi

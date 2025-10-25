@@ -6,7 +6,6 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json()
     
-    // Buscar usuario por email
     const result = await sql`
       SELECT id, email, password, role 
       FROM users 
@@ -18,15 +17,13 @@ export async function POST(req: NextRequest) {
     }
     
     const user = result[0]
-    
-    // Comparar contraseña hasheada
+  
     const passwordMatch = await bcrypt.compare(password, user.password)
     
     if (!passwordMatch) {
       return Response.json({ error: 'Credenciales inválidas' }, { status: 401 })
     }
-    
-    // Retornar datos del usuario (sin la contraseña)
+  
     return Response.json({ 
       id: user.id, 
       email: user.email, 

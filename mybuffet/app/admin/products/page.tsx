@@ -47,7 +47,7 @@ export default function AdminProductsPage() {
         setDescription('')
         setPrice('')
         setImage('')
-        loadProducts() // Recargar lista
+        loadProducts() 
       } else {
         setMessage('❌ Error al crear producto')
       }

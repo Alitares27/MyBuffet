@@ -1,13 +1,11 @@
 import { sql } from '@/lib/db'
 import type { NextRequest } from 'next/server'
 
-// GET: Listar productos
 export async function GET() {
   const result = await sql`SELECT * FROM products ORDER BY id`
   return Response.json(result)
 }
 
-// POST: Crear producto
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as {
     name: string
