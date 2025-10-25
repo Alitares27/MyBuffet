@@ -12,20 +12,39 @@ export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
 
-  const handleSubmit = async (e: React.FormEvent) => { 
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     
-    const success = await login(email, password)
-    
-    if (success) {
-      router.push('/products')
-    } else {
-      setError('Email o contraseña incorrectos')
+    try {
+      // Llamar a la API de login
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        login({
+          id: data.id,
+          email: data.email,
+          role: data.role
+        })
+        
+        // Redirigir a productos
+        router.push('/products')
+      } else {
+        setError(data.error || 'Email o contraseña incorrectos')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      setError('Error de conexión con el servidor')
+    } finally {
+      setLoading(false)
     }
-    
-    setLoading(false)
   }
 
   return (
@@ -48,7 +67,7 @@ export default function LoginPage() {
           <input 
             type="email" 
             value={email} 
-            onChange={e=>setEmail(e.target.value)} 
+            onChange={(e) => setEmail(e.target.value)} 
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             placeholder="tu@email.com"
             required
@@ -62,7 +81,7 @@ export default function LoginPage() {
           <input 
             type="password" 
             value={password} 
-            onChange={e=>setPassword(e.target.value)} 
+            onChange={(e) => setPassword(e.target.value)} 
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
             placeholder="••••••••"
             required
@@ -72,7 +91,7 @@ export default function LoginPage() {
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Ingresando...' : 'Entrar'}
         </button>

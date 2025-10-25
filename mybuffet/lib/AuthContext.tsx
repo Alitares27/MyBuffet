@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Cargar usuario desde localStorage solo en el cliente
   useEffect(() => {
     if (!isClient) return
-    
+
     const savedUser = localStorage.getItem('user')
     if (savedUser) {
       try {
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('user', JSON.stringify(userData))
     }
   }
+
 
   const logout = () => {
     setUser(null)
