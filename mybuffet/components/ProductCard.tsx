@@ -15,7 +15,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </span>
       ) : product.stock < 10 ? (
         <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-          Últimas {product.stock}
+          Últimas unidades
         </span>
       ) : null}
 
