@@ -9,12 +9,15 @@ export default function AdminProductsPage() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [editPrice, setEditPrice] = useState('')
+  const [editingPrice, setEditingPrice] = useState<number | null>(null)
+  const [editingStock, setEditingStock] = useState<number | null>(null)
+  const [editPriceValue, setEditPriceValue] = useState('')
+  const [editStockValue, setEditStockValue] = useState('')
   
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
+  const [stock, setStock] = useState('')
   const [image, setImage] = useState('')
   const [showForm, setShowForm] = useState(false)
 
@@ -49,6 +52,7 @@ export default function AdminProductsPage() {
           name,
           description,
           price: parseFloat(price),
+          stock: parseInt(stock),
           image
         })
       })
@@ -58,6 +62,7 @@ export default function AdminProductsPage() {
         setName('')
         setDescription('')
         setPrice('')
+        setStock('')
         setImage('')
         setShowForm(false)
         loadProducts()
@@ -71,7 +76,7 @@ export default function AdminProductsPage() {
   }
 
   const handleUpdatePrice = async (productId: number) => {
-    if (!editPrice || parseFloat(editPrice) <= 0) {
+    if (!editPriceValue || parseFloat(editPriceValue) <= 0) {
       alert('❌ Ingresa un precio válido')
       return
     }
@@ -80,16 +85,43 @@ export default function AdminProductsPage() {
       const response = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ price: parseFloat(editPrice) })
+        body: JSON.stringify({ price: parseFloat(editPriceValue) })
       })
 
       if (response.ok) {
-        alert('✅ Precio actualizado exitosamente')
-        setEditingId(null)
-        setEditPrice('')
+        alert('✅ Precio actualizado')
+        setEditingPrice(null)
+        setEditPriceValue('')
         loadProducts()
       } else {
         alert('❌ Error al actualizar precio')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('❌ Error de conexión')
+    }
+  }
+
+  const handleUpdateStock = async (productId: number) => {
+    if (!editStockValue || parseInt(editStockValue) < 0) {
+      alert('❌ Ingresa un stock válido')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stock: parseInt(editStockValue) })
+      })
+
+      if (response.ok) {
+        alert('✅ Inventario actualizado')
+        setEditingStock(null)
+        setEditStockValue('')
+        loadProducts()
+      } else {
+        alert('❌ Error al actualizar inventario')
       }
     } catch (error) {
       console.error('Error:', error)
@@ -163,16 +195,29 @@ export default function AdminProductsPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Precio</label>
-              <input
-                type="number"
-                step="0.01"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="w-full border rounded px-3 py-2"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Precio</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  className="w-full border rounded px-3 py-2"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Stock Inicial</label>
+                <input
+                  type="number"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  className="w-full border rounded px-3 py-2"
+                  required
+                />
+              </div>
             </div>
 
             <div>
@@ -198,13 +243,14 @@ export default function AdminProductsPage() {
       )}
 
       {/* Lista de productos */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="text-left p-4">Producto</th>
               <th className="text-left p-4">Descripción</th>
               <th className="text-left p-4">Precio</th>
+              <th className="text-left p-4">Inventario</th>
               <th className="text-center p-4">Acciones</th>
             </tr>
           </thead>
@@ -221,30 +267,31 @@ export default function AdminProductsPage() {
                     <span className="font-medium">{product.name}</span>
                   </div>
                 </td>
-                <td className="p-4 text-sm text-gray-600">{product.description}</td>
+                <td className="p-4 text-sm text-gray-600 max-w-xs">{product.description}</td>
+                
+                {/* Precio editable */}
                 <td className="p-4">
-                  {editingId === product.id ? (
+                  {editingPrice === product.id ? (
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
                         step="0.01"
-                        value={editPrice}
-                        onChange={(e) => setEditPrice(e.target.value)}
+                        value={editPriceValue}
+                        onChange={(e) => setEditPriceValue(e.target.value)}
                         className="w-24 border rounded px-2 py-1"
-                        placeholder={product.price.toString()}
                       />
                       <button
                         onClick={() => handleUpdatePrice(product.id)}
-                        className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+                        className="bg-green-500 text-white px-2 py-1 rounded text-sm"
                       >
                         ✓
                       </button>
                       <button
                         onClick={() => {
-                          setEditingId(null)
-                          setEditPrice('')
+                          setEditingPrice(null)
+                          setEditPriceValue('')
                         }}
-                        className="bg-gray-400 text-white px-3 py-1 rounded text-sm hover:bg-gray-500"
+                        className="bg-gray-400 text-white px-2 py-1 rounded text-sm"
                       >
                         ✕
                       </button>
@@ -254,22 +301,71 @@ export default function AdminProductsPage() {
                       <span className="font-bold text-pink-600">${product.price}</span>
                       <button
                         onClick={() => {
-                          setEditingId(product.id)
-                          setEditPrice(product.price.toString())
+                          setEditingPrice(product.id)
+                          setEditPriceValue(product.price.toString())
                         }}
                         className="text-blue-600 hover:underline text-sm"
                       >
-                        ✏️ Editar
+                        ✏️
                       </button>
                     </div>
                   )}
                 </td>
+
+                {/* Stock editable */}
                 <td className="p-4">
+                  {editingStock === product.id ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={editStockValue}
+                        onChange={(e) => setEditStockValue(e.target.value)}
+                        className="w-20 border rounded px-2 py-1"
+                      />
+                      <button
+                        onClick={() => handleUpdateStock(product.id)}
+                        className="bg-green-500 text-white px-2 py-1 rounded text-sm"
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingStock(null)
+                          setEditStockValue('')
+                        }}
+                        className="bg-gray-400 text-white px-2 py-1 rounded text-sm"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className={`font-semibold ${
+                        product.stock === 0 ? 'text-red-600' :
+                        product.stock < 10 ? 'text-orange-600' :
+                        'text-green-600'
+                      }`}>
+                        {product.stock} unidades
+                      </span>
+                      <button
+                        onClick={() => {
+                          setEditingStock(product.id)
+                          setEditStockValue(product.stock.toString())
+                        }}
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  )}
+                </td>
+
+                <td className="p-4 text-center">
                   <button
                     onClick={() => handleDeleteProduct(product.id)}
                     className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition"
                   >
-                    🗑️ Eliminar
+                    🗑️
                   </button>
                 </td>
               </tr>

@@ -2,22 +2,22 @@ import { sql } from '@/lib/db'
 import type { NextRequest } from 'next/server'
 
 export async function GET() {
-  const result = await sql`SELECT * FROM products ORDER BY id`
+  const result = await sql`SELECT * FROM products ORDER BY id DESC`
   return Response.json(result)
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as {
-    name: string
-    description: string
-    price: number
-    image: string
+  try {
+    const { name, description, price, stock, image } = await req.json()
+    
+    await sql`
+      INSERT INTO products (name, description, price, stock, image)
+      VALUES (${name}, ${description}, ${price}, ${stock || 0}, ${image})
+    `
+    
+    return Response.json({ message: 'Producto creado exitosamente' })
+  } catch (error) {
+    console.error('Error al crear producto:', error)
+    return Response.json({ error: 'Error al crear producto' }, { status: 500 })
   }
-  
-  await sql`
-    INSERT INTO products (name, description, price, image)
-    VALUES (${body.name}, ${body.description}, ${body.price}, ${body.image})
-  `
-  
-  return Response.json({ message: 'Producto creado exitosamente' })
 }

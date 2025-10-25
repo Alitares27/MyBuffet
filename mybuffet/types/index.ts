@@ -12,6 +12,8 @@ export interface Product {
   description: string
   price: number
   image: string
+  stock: number 
+  created_at?: Date
 }
 
 export interface Order {
