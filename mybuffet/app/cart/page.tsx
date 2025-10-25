@@ -259,7 +259,7 @@ export default function CartPage() {
         <p className="text-sm font-semibold text-blue-900 mb-2">ℹ️ Información importante:</p>
         <ul className="text-sm text-blue-800 space-y-1">
           <li>• Se verificará el stock antes de procesar tu orden</li>
-          <li>• Recibirás un código de pago único</li>
+          <li>• Recibirás un código de pago realizar el pago</li>
           <li>• Los productos se reservarán al confirmar la orden</li>
         </ul>
       </div>
