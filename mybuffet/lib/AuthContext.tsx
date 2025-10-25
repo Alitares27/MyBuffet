@@ -9,53 +9,51 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<boolean>
+  login: (userData: User) => void
   logout: () => void
-  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isClient, setIsClient] = useState(false)
 
+  // Marcar como montado en el cliente
   useEffect(() => {
-    const savedUser = localStorage.getItem('user')
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
-    }
-    setIsLoading(false)
+    setIsClient(true)
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-
-      if (response.ok) {
-        const userData = await response.json()
-        setUser(userData)
-        localStorage.setItem('user', JSON.stringify(userData))
-        return true
+  // Cargar usuario desde localStorage solo en el cliente
+  useEffect(() => {
+    if (!isClient) return
+    
+    const savedUser = localStorage.getItem('user')
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser))
+      } catch (error) {
+        console.error('Error loading user:', error)
       }
-      return false
-    } catch (error) {
-      console.error('Error en login:', error)
-      return false
+    }
+  }, [isClient])
+
+  const login = (userData: User) => {
+    setUser(userData)
+    if (isClient) {
+      localStorage.setItem('user', JSON.stringify(userData))
     }
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('user')
+    if (isClient) {
+      localStorage.removeItem('user')
+    }
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

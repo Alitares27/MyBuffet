@@ -15,7 +15,7 @@ interface CartContextType {
   removeFromCart: (id: number) => void
   updateQuantity: (id: number, quantity: number) => void
   getTotal: () => number
-  getItemCount: () => number 
+  getItemCount: () => number
   clearCart: () => void
 }
 
@@ -23,17 +23,32 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
+  const [isClient, setIsClient] = useState(false)
 
+  // Marcar como montado en el cliente
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart')
-    if (savedCart) {
-      setCart(JSON.parse(savedCart))
-    }
+    setIsClient(true)
   }, [])
 
+  // Cargar carrito desde localStorage solo en el cliente
   useEffect(() => {
+    if (!isClient) return
+    
+    const savedCart = localStorage.getItem('cart')
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart))
+      } catch (error) {
+        console.error('Error loading cart:', error)
+      }
+    }
+  }, [isClient])
+
+  // Guardar carrito en localStorage cuando cambie
+  useEffect(() => {
+    if (!isClient) return
     localStorage.setItem('cart', JSON.stringify(cart))
-  }, [cart])
+  }, [cart, isClient])
 
   const addItem = (newItem: CartItem) => {
     setCart(prevCart => {
@@ -77,7 +92,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setCart([])
-    localStorage.removeItem('cart')
+    if (isClient) {
+      localStorage.removeItem('cart')
+    }
   }
 
   return (

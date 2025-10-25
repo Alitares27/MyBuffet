@@ -4,7 +4,12 @@ import AddToCartButton from './AddToCartButton'
 import type { Product } from '@/types'
 
 async function getProduct(id: string): Promise<Product> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products/${id}`, {
+  // Usar la URL base correcta
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000'
+  
+  const res = await fetch(`${baseUrl}/api/products/${id}`, {
     cache: 'no-store'
   })
   
