@@ -1,23 +1,23 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import AddToCartButton from './AddToCartButton'
+import { sql } from '@/lib/db'
 import type { Product } from '@/types'
 
 async function getProduct(id: string): Promise<Product> {
-  // Usar la URL base correcta
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000'
-  
-  const res = await fetch(`${baseUrl}/api/products/${id}`, {
-    cache: 'no-store'
-  })
-  
-  if (!res.ok) {
+  try {
+    
+    const result = await sql`SELECT * FROM products WHERE id = ${id}`
+    
+    if (result.length === 0) {
+      notFound()
+    }
+    
+    return result[0] as Product
+  } catch (error) {
+    console.error('Error fetching product:', error)
     notFound()
   }
-  
-  return res.json()
 }
 
 export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -25,7 +25,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
   const product = await getProduct(id)
 
   return (
-    <div className="max-w-4xl mx-auto mt-8">
+    <div className="max-w-4xl mx-auto mt-8 px-4">
       {/* Botón de volver */}
       <Link 
         href="/products"

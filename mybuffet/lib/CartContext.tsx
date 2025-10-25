@@ -25,12 +25,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isClient, setIsClient] = useState(false)
 
-  // Marcar como montado en el cliente
+  
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Cargar carrito desde localStorage solo en el cliente
+  
   useEffect(() => {
     if (!isClient) return
     
@@ -44,7 +44,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [isClient])
 
-  // Guardar carrito en localStorage cuando cambie
+  
   useEffect(() => {
     if (!isClient) return
     localStorage.setItem('cart', JSON.stringify(cart))

@@ -19,12 +19,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isClient, setIsClient] = useState(false)
 
-  // Marcar como montado en el cliente
+  
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Cargar usuario desde localStorage solo en el cliente
+  
   useEffect(() => {
     if (!isClient) return
 
